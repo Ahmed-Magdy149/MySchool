@@ -1,0 +1,115 @@
+@page "/student-dashboard"
+@using MySchool.Shared.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>لوحة تحكم الطالب - MySchool</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-primary sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == StudentTab.Overview ? "active" : "")" 
+                           @onclick="() => SetActiveTab(StudentTab.Overview)">
+                            <i class="bi bi-speedometer2"></i> الرئيسية
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == StudentTab.Subjects ? "active" : "")" 
+                           @onclick="() => SetActiveTab(StudentTab.Subjects)">
+                            <i class="bi bi-book"></i> المواد الدراسية
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == StudentTab.Assignments ? "active" : "")" 
+                           @onclick="() => SetActiveTab(StudentTab.Assignments)">
+                            <i class="bi bi-journal-check"></i> الواجبات
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == StudentTab.Exams ? "active" : "")" 
+                           @onclick="() => SetActiveTab(StudentTab.Exams)">
+                            <i class="bi bi-file-earmark-text"></i> الاختبارات
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == StudentTab.Progress ? "active" : "")" 
+                           @onclick="() => SetActiveTab(StudentTab.Progress)">
+                            <i class="bi bi-graph-up"></i> التقدم الدراسي
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link text-danger" @onclick="Logout">
+                            <i class="bi bi-box-arrow-right"></i> تسجيل الخروج
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1>@GetTabTitle()</h1>
+            </div>
+
+            @switch (activeTab)
+            {
+                case StudentTab.Overview:
+                    <MySchool.Shared.Components.StudentOverview />
+                    break;
+                case StudentTab.Subjects:
+                    <MySchool.Shared.Components.StudentSubjects />
+                    break;
+                case StudentTab.Assignments:
+                    <MySchool.Shared.Components.StudentAssignments />
+                    break;
+                case StudentTab.Exams:
+                    <MySchool.Shared.Components.StudentExams />
+                    break;
+                case StudentTab.Progress:
+                    <MySchool.Shared.Components.StudentProgress />
+                    break;
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private enum StudentTab
+    {
+        Overview,
+        Subjects,
+        Assignments,
+        Exams,
+        Progress
+    }
+
+    private StudentTab activeTab = StudentTab.Overview;
+
+    private void SetActiveTab(StudentTab tab)
+    {
+        activeTab = tab;
+    }
+
+    private string GetTabTitle()
+    {
+        return activeTab switch
+        {
+            StudentTab.Overview => "الرئيسية",
+            StudentTab.Subjects => "المواد الدراسية",
+            StudentTab.Assignments => "الواجبات",
+            StudentTab.Exams => "الاختبارات",
+            StudentTab.Progress => "التقدم الدراسي",
+            _ => "لوحة تحكم الطالب"
+        };
+    }
+
+    private void Logout()
+    {
+        // In a real app, this would clear authentication state
+        NavigationManager.NavigateTo("/login");
+    }
+}

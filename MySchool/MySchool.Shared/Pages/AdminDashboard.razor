@@ -1,0 +1,122 @@
+@page "/admin-dashboard"
+@using MySchool.Shared.Models
+@using Microsoft.AspNetCore.Components.Rendering
+@inject NavigationManager NavigationManager
+
+<PageTitle>لوحة تحكم المدير - MySchool</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == AdminTab.Overview ? "active" : "")" 
+                           @onclick="() => SetActiveTab(AdminTab.Overview)">
+                            <i class="bi bi-speedometer2"></i> لوحة المعلومات
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == AdminTab.Users ? "active" : "")" 
+                           @onclick="() => SetActiveTab(AdminTab.Users)">
+                            <i class="bi bi-people"></i> إدارة المستخدمين
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == AdminTab.Subjects ? "active" : "")" 
+                           @onclick="() => SetActiveTab(AdminTab.Subjects)">
+                            <i class="bi bi-book"></i> إدارة المواد
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == AdminTab.Reports ? "active" : "")" 
+                           @onclick="() => SetActiveTab(AdminTab.Reports)">
+                            <i class="bi bi-bar-chart"></i> التقارير
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(activeTab == AdminTab.Settings ? "active" : "")" 
+                           @onclick="() => SetActiveTab(AdminTab.Settings)">
+                            <i class="bi bi-gear"></i> الإعدادات
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link text-danger" @onclick="Logout">
+                            <i class="bi bi-box-arrow-right"></i> تسجيل الخروج
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1>@GetTabTitle()</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">تصدير</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">طباعة</button>
+                    </div>
+                </div>
+            </div>
+
+            @switch (activeTab)
+            {
+                case AdminTab.Overview:
+                    <MySchool.Shared.Components.AdminOverview />
+                    break;
+                case AdminTab.Users:
+                    <MySchool.Shared.Components.AdminUsers />
+                    break;
+                case AdminTab.Subjects:
+                    <MySchool.Shared.Components.AdminSubjects />
+                    break;
+                case AdminTab.Reports:
+                    <MySchool.Shared.Components.AdminReports />
+                    break;
+                case AdminTab.Settings:
+                    <MySchool.Shared.Components.AdminSettings />
+                    break;
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private enum AdminTab
+    {
+        Overview,
+        Users,
+        Subjects,
+        Reports,
+        Settings
+    }
+
+    private AdminTab activeTab = AdminTab.Overview;
+
+    private void SetActiveTab(AdminTab tab)
+    {
+        activeTab = tab;
+    }
+
+    private string GetTabTitle()
+    {
+        return activeTab switch
+        {
+            AdminTab.Overview => "لوحة المعلومات",
+            AdminTab.Users => "إدارة المستخدمين",
+            AdminTab.Subjects => "إدارة المواد الدراسية",
+            AdminTab.Reports => "التقارير والإحصائيات",
+            AdminTab.Settings => "إعدادات النظام",
+            _ => "لوحة تحكم المدير"
+        };
+    }
+
+    private void Logout()
+    {
+        // In a real app, this would clear authentication state
+        NavigationManager.NavigateTo("/login");
+    }
+}

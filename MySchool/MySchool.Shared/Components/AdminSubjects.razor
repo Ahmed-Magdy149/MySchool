@@ -1,0 +1,137 @@
+@using MySchool.Shared.Models
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">إدارة المواد الدراسية</h6>
+        <button class="btn btn-primary btn-sm">إضافة مادة جديدة</button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم المادة</th>
+                        <th>عدد الوحدات</th>
+                        <th>المعلمين</th>
+                        <th>الطلاب المسجلين</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var subject in GetSampleSubjects())
+                    {
+                        <tr>
+                            <td>@subject.Id</td>
+                            <td>@subject.Name</td>
+                            <td>@subject.ModulesCount</td>
+                            <td>@subject.TeachersCount</td>
+                            <td>@subject.StudentsCount</td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1">عرض</button>
+                                <button class="btn btn-sm btn-warning me-1">تعديل</button>
+                                <button class="btn btn-sm btn-danger">حذف</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">إضافة وحدة دراسية</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="moduleSubject" class="form-label">المادة</label>
+                        <select class="form-select" id="moduleSubject">
+                            <option selected>اختر المادة</option>
+                            @foreach (var subject in GetSampleSubjects())
+                            {
+                                <option value="@subject.Id">@subject.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="moduleTitle" class="form-label">عنوان الوحدة</label>
+                        <input type="text" class="form-control" id="moduleTitle">
+                    </div>
+                    <div class="mb-3">
+                        <label for="moduleType" class="form-label">نوع الوحدة</label>
+                        <select class="form-select" id="moduleType">
+                            <option value="Vocabulary">مفردات</option>
+                            <option value="Grammar">قواعد</option>
+                            <option value="Quiz">اختبار قصير</option>
+                            <option value="Exam">اختبار</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">إضافة الوحدة</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">تعيين المعلمين للمواد</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="assignSubject" class="form-label">المادة</label>
+                        <select class="form-select" id="assignSubject">
+                            <option selected>اختر المادة</option>
+                            @foreach (var subject in GetSampleSubjects())
+                            {
+                                <option value="@subject.Id">@subject.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assignTeacher" class="form-label">المعلم</label>
+                        <select class="form-select" id="assignTeacher">
+                            <option selected>اختر المعلم</option>
+                            <option value="1">خالد عبدالله</option>
+                            <option value="2">نورة سعد</option>
+                            <option value="3">عبدالرحمن محمد</option>
+                            <option value="4">هدى أحمد</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">تعيين المعلم</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class SubjectViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int ModulesCount { get; set; }
+        public int TeachersCount { get; set; }
+        public int StudentsCount { get; set; }
+    }
+
+    private List<SubjectViewModel> GetSampleSubjects()
+    {
+        // In a real app, this would come from a database or service
+        return new List<SubjectViewModel>
+        {
+            new SubjectViewModel { Id = 1, Name = "اللغة الإنجليزية", ModulesCount = 12, TeachersCount = 3, StudentsCount = 150 },
+            new SubjectViewModel { Id = 2, Name = "الرياضيات", ModulesCount = 15, TeachersCount = 4, StudentsCount = 180 },
+            new SubjectViewModel { Id = 3, Name = "العلوم", ModulesCount = 10, TeachersCount = 2, StudentsCount = 165 },
+            new SubjectViewModel { Id = 4, Name = "التاريخ", ModulesCount = 8, TeachersCount = 1, StudentsCount = 120 },
+            new SubjectViewModel { Id = 5, Name = "الجغرافيا", ModulesCount = 6, TeachersCount = 1, StudentsCount = 90 },
+            new SubjectViewModel { Id = 6, Name = "علوم الحاسب", ModulesCount = 14, TeachersCount = 2, StudentsCount = 110 }
+        };
+    }
+}

@@ -1,0 +1,120 @@
+@using MySchool.Shared.Models
+@inject NavigationManager NavigationManager
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">المواد الدراسية</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var subject in GetSubjects())
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 subject-card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">@subject.Name</h5>
+                                    <p class="card-text">@subject.Description</p>
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar" role="progressbar" style="width: @(subject.Progress)%" 
+                                             aria-valuenow="@subject.Progress" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p>@subject.Progress% مكتمل</p>
+                                    <button class="btn btn-primary" @onclick="() => NavigateToSubject(subject.Id)">
+                                        عرض المادة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .subject-card {
+        transition: transform 0.3s;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .subject-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+</style>
+
+@code {
+    private class SubjectWithProgress
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public int Progress { get; set; }
+    }
+
+    private List<SubjectWithProgress> GetSubjects()
+    {
+        // In a real app, this would come from a database or service
+        return new List<SubjectWithProgress>
+        {
+            new SubjectWithProgress 
+            { 
+                Id = 1, 
+                Name = "اللغة الإنجليزية", 
+                Description = "تعلم المفردات والقواعد والمزيد",
+                ImageUrl = "images/english.jpg",
+                Progress = 75
+            },
+            new SubjectWithProgress 
+            { 
+                Id = 2, 
+                Name = "الرياضيات", 
+                Description = "استكشاف مفاهيم الرياضيات وحل المشكلات",
+                ImageUrl = "images/math.jpg",
+                Progress = 60
+            },
+            new SubjectWithProgress 
+            { 
+                Id = 3, 
+                Name = "العلوم", 
+                Description = "اكتشاف المبادئ العلمية والتجارب",
+                ImageUrl = "images/science.jpg",
+                Progress = 85
+            },
+            new SubjectWithProgress 
+            { 
+                Id = 4, 
+                Name = "التاريخ", 
+                Description = "استكشاف الأحداث التاريخية والحضارات",
+                ImageUrl = "images/history.jpg",
+                Progress = 45
+            },
+            new SubjectWithProgress 
+            { 
+                Id = 5, 
+                Name = "الجغرافيا", 
+                Description = "تعلم عن البلدان والثقافات والتضاريس",
+                ImageUrl = "images/geography.jpg",
+                Progress = 30
+            },
+            new SubjectWithProgress 
+            { 
+                Id = 6, 
+                Name = "علوم الحاسب", 
+                Description = "تعلم البرمجة ومفاهيم الحاسوب",
+                ImageUrl = "images/cs.jpg",
+                Progress = 90
+            }
+        };
+    }
+
+    private void NavigateToSubject(int subjectId)
+    {
+        NavigationManager.NavigateTo($"/subject/{subjectId}");
+    }
+}

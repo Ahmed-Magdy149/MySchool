@@ -1,0 +1,120 @@
+@page "/login"
+@using MySchool.Shared.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>تسجيل الدخول - MySchool</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h2>تسجيل الدخول</h2>
+                </div>
+                <div class="card-body p-4">
+                    @if (showError)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            اسم المستخدم أو كلمة المرور غير صحيحة.
+                            <button type="button" class="btn-close" @onclick="() => showError = false"></button>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">اسم المستخدم</label>
+                        <input type="text" class="form-control" id="username" @bind="username" placeholder="أدخل اسم المستخدم" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" id="password" @bind="password" placeholder="أدخل كلمة المرور" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">نوع المستخدم</label>
+                        <select class="form-select" id="role" @bind="selectedRole">
+                            <option value="@UserRole.Student">طالب</option>
+                            <option value="@UserRole.Teacher">معلم</option>
+                            <option value="@UserRole.Admin">مدير</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" @bind="rememberMe">
+                        <label class="form-check-label" for="rememberMe">تذكرني</label>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100" @onclick="HandleLogin">تسجيل الدخول</button>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <div class="small">
+                        ليس لديك حساب؟ <a href="#" class="link-primary">إنشاء حساب جديد</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background-color: #4a6baf !important;
+    }
+    
+    .btn-primary {
+        background-color: #4a6baf;
+        border-color: #4a6baf;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3a5a9f;
+        border-color: #3a5a9f;
+    }
+</style>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private UserRole selectedRole = UserRole.Student;
+    private bool rememberMe = false;
+    private bool showError = false;
+
+    // Sample user data - in a real app, this would come from a database
+    private List<User> users = new List<User>
+    {
+        new User { Id = 1, Username = "student", PasswordHash = "password", Role = UserRole.Student, FirstName = "أحمد", LastName = "محمد" },
+        new User { Id = 2, Username = "teacher", PasswordHash = "password", Role = UserRole.Teacher, FirstName = "سارة", LastName = "علي" },
+        new User { Id = 3, Username = "admin", PasswordHash = "password", Role = UserRole.Admin, FirstName = "خالد", LastName = "إبراهيم" }
+    };
+
+    private void HandleLogin()
+    {
+        // In a real app, this would validate credentials against a database and use proper password hashing
+        var user = users.FirstOrDefault(u => u.Username == username && u.PasswordHash == password && u.Role == selectedRole);
+        
+        if (user != null)
+        {
+            // In a real app, this would set authentication state and store user info
+            Console.WriteLine($"User {user.FirstName} {user.LastName} logged in as {user.Role}");
+            
+            // Redirect based on role
+            switch (user.Role)
+            {
+                case UserRole.Student:
+                    NavigationManager.NavigateTo("/");
+                    break;
+                case UserRole.Teacher:
+                    NavigationManager.NavigateTo("/teacher-dashboard");
+                    break;
+                case UserRole.Admin:
+                    NavigationManager.NavigateTo("/admin-dashboard");
+                    break;
+            }
+        }
+        else
+        {
+            showError = true;
+        }
+    }
+}

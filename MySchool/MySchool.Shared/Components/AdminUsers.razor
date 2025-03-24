@@ -1,0 +1,116 @@
+@using MySchool.Shared.Models
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">قائمة المستخدمين</h6>
+        <button class="btn btn-primary btn-sm">إضافة مستخدم جديد</button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الاسم</th>
+                        <th>اسم المستخدم</th>
+                        <th>نوع المستخدم</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in GetSampleUsers())
+                    {
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.FullName</td>
+                            <td>@user.Username</td>
+                            <td>
+                                @switch (user.Role)
+                                {
+                                    case UserRole.Student:
+                                        <span class="badge bg-info">طالب</span>
+                                        break;
+                                    case UserRole.Teacher:
+                                        <span class="badge bg-success">معلم</span>
+                                        break;
+                                    case UserRole.Admin:
+                                        <span class="badge bg-danger">مدير</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success">نشط</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">غير نشط</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1">عرض</button>
+                                <button class="btn btn-sm btn-warning me-1">تعديل</button>
+                                <button class="btn btn-sm btn-danger">حذف</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <span>عرض 1-10 من 215 مستخدم</span>
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">السابق</a>
+                    </li>
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">التالي</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class UserViewModel
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public UserRole Role { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    private List<UserViewModel> GetSampleUsers()
+    {
+        // In a real app, this would come from a database or service
+        return new List<UserViewModel>
+        {
+            new UserViewModel { Id = 1, FullName = "أحمد محمد", Username = "ahmed", Role = UserRole.Student, IsActive = true },
+            new UserViewModel { Id = 2, FullName = "سارة علي", Username = "sara", Role = UserRole.Student, IsActive = true },
+            new UserViewModel { Id = 3, FullName = "محمد خالد", Username = "mohamed", Role = UserRole.Student, IsActive = true },
+            new UserViewModel { Id = 4, FullName = "فاطمة عمر", Username = "fatima", Role = UserRole.Student, IsActive = false },
+            new UserViewModel { Id = 5, FullName = "خالد عبدالله", Username = "khaled", Role = UserRole.Teacher, IsActive = true },
+            new UserViewModel { Id = 6, FullName = "نورة سعد", Username = "noura", Role = UserRole.Teacher, IsActive = true },
+            new UserViewModel { Id = 7, FullName = "عبدالرحمن محمد", Username = "abdulrahman", Role = UserRole.Teacher, IsActive = true },
+            new UserViewModel { Id = 8, FullName = "هدى أحمد", Username = "huda", Role = UserRole.Teacher, IsActive = false },
+            new UserViewModel { Id = 9, FullName = "سلطان فهد", Username = "sultan", Role = UserRole.Admin, IsActive = true },
+            new UserViewModel { Id = 10, FullName = "منى سعيد", Username = "mona", Role = UserRole.Admin, IsActive = true }
+        };
+    }
+}

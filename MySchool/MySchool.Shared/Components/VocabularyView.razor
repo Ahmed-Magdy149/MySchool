@@ -1,0 +1,179 @@
+@using MySchool.Shared.Models
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">المفردات</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @foreach (var item in vocabularyItems)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Term</h5>
+                            <p class="card-text">@item.Definition</p>
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => PlayAudio(item.Term)">
+                                <i class="bi bi-volume-up"></i> استمع
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4">
+            <h3>تمارين</h3>
+            <div class="list-group">
+                @foreach (var exercise in exercises)
+                {
+                    <div class="list-group-item">
+                        <h5>@exercise.Question</h5>
+                        <div class="form-check">
+                            @foreach (var option in exercise.Options)
+                            {
+                                <div class="mb-2">
+                                    <input class="form-check-input" type="radio" name="exercise_@exercise.Id" id="option_@exercise.Id,@option.Id" 
+                                           @onchange="() => SelectAnswer(exercise.Id, option.Id)" />
+                                    <label class="form-check-label" for="option_@exercise.Id,@option.Id">
+                                        @option.Text
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        @if (answeredExercises.ContainsKey(exercise.Id))
+                        {
+                            <div class="mt-2 @(IsCorrect(exercise.Id) ? "text-success" : "text-danger")">
+                                @if (IsCorrect(exercise.Id))
+                                {
+                                    <span><i class="bi bi-check-circle"></i> إجابة صحيحة!</span>
+                                }
+                                else
+                                {
+                                    <span><i class="bi bi-x-circle"></i> إجابة خاطئة. حاول مرة أخرى.</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    private List<VocabularyItem> vocabularyItems = new List<VocabularyItem>();
+    private List<VocabularyExercise> exercises = new List<VocabularyExercise>();
+    private Dictionary<int, int> answeredExercises = new Dictionary<int, int>();
+
+    protected override void OnInitialized()
+    {
+        // In a real app, this would fetch data from a service based on ModuleId
+        LoadVocabularyItems();
+        LoadExercises();
+    }
+
+    private void LoadVocabularyItems()
+    {
+        // Sample data - in a real app, this would come from a database
+        vocabularyItems = new List<VocabularyItem>
+        {
+            new VocabularyItem { Id = 1, Term = "Book", Definition = "A written or printed work consisting of pages glued or sewn together along one side and bound in covers." },
+            new VocabularyItem { Id = 2, Term = "School", Definition = "An institution for educating children." },
+            new VocabularyItem { Id = 3, Term = "Teacher", Definition = "A person who teaches, especially in a school." },
+            new VocabularyItem { Id = 4, Term = "Student", Definition = "A person who is studying at a school or college." },
+            new VocabularyItem { Id = 5, Term = "Classroom", Definition = "A room where a class of students is taught." },
+            new VocabularyItem { Id = 6, Term = "Homework", Definition = "Schoolwork that a student is required to do at home." }
+        };
+    }
+
+    private void LoadExercises()
+    {
+        // Sample data - in a real app, this would come from a database
+        exercises = new List<VocabularyExercise>
+        {
+            new VocabularyExercise 
+            { 
+                Id = 1, 
+                Question = "ما هو المعنى الصحيح لكلمة 'Book'؟", 
+                Options = new List<VocabularyOption> 
+                { 
+                    new VocabularyOption { Id = 1, Text = "مكان للتعلم" },
+                    new VocabularyOption { Id = 2, Text = "كتاب", IsCorrect = true },
+                    new VocabularyOption { Id = 3, Text = "شخص يعلم" }
+                }
+            },
+            new VocabularyExercise 
+            { 
+                Id = 2, 
+                Question = "ما هو المعنى الصحيح لكلمة 'Teacher'؟", 
+                Options = new List<VocabularyOption> 
+                { 
+                    new VocabularyOption { Id = 1, Text = "طالب" },
+                    new VocabularyOption { Id = 2, Text = "فصل دراسي" },
+                    new VocabularyOption { Id = 3, Text = "معلم", IsCorrect = true }
+                }
+            },
+            new VocabularyExercise 
+            { 
+                Id = 3, 
+                Question = "ما هو المعنى الصحيح لكلمة 'Homework'؟", 
+                Options = new List<VocabularyOption> 
+                { 
+                    new VocabularyOption { Id = 1, Text = "واجب منزلي", IsCorrect = true },
+                    new VocabularyOption { Id = 2, Text = "كتاب" },
+                    new VocabularyOption { Id = 3, Text = "مدرسة" }
+                }
+            }
+        };
+    }
+
+    private void PlayAudio(string term)
+    {
+        // In a real app, this would play audio for the term
+        Console.WriteLine($"Playing audio for: {term}");
+    }
+
+    private void SelectAnswer(int exerciseId, int optionId)
+    {
+        answeredExercises[exerciseId] = optionId;
+    }
+
+    private bool IsCorrect(int exerciseId)
+    {
+        if (!answeredExercises.ContainsKey(exerciseId))
+            return false;
+
+        var exercise = exercises.FirstOrDefault(e => e.Id == exerciseId);
+        if (exercise == null)
+            return false;
+
+        var selectedOption = exercise.Options.FirstOrDefault(o => o.Id == answeredExercises[exerciseId]);
+        return selectedOption?.IsCorrect ?? false;
+    }
+
+    private class VocabularyItem
+    {
+        public int Id { get; set; }
+        public string Term { get; set; } = string.Empty;
+        public string Definition { get; set; } = string.Empty;
+        public string? AudioUrl { get; set; }
+    }
+
+    private class VocabularyExercise
+    {
+        public int Id { get; set; }
+        public string Question { get; set; } = string.Empty;
+        public List<VocabularyOption> Options { get; set; } = new List<VocabularyOption>();
+    }
+
+    private class VocabularyOption
+    {
+        public int Id { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public bool IsCorrect { get; set; }
+    }
+}

@@ -1,0 +1,169 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">الواجبات</h5>
+                <div>
+                    <select class="form-select form-select-sm" @bind="selectedFilter">
+                        <option value="all">جميع الواجبات</option>
+                        <option value="pending">الواجبات المعلقة</option>
+                        <option value="completed">الواجبات المكتملة</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>عنوان الواجب</th>
+                                <th>تاريخ التسليم</th>
+                                <th>الحالة</th>
+                                <th>الدرجة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var assignment in GetFilteredAssignments())
+                            {
+                                <tr>
+                                    <td>@assignment.SubjectName</td>
+                                    <td>@assignment.Title</td>
+                                    <td>@assignment.DueDate.ToString("yyyy/MM/dd")</td>
+                                    <td>
+                                        @if (assignment.Status == AssignmentStatus.Completed)
+                                        {
+                                            <span class="badge bg-success">مكتمل</span>
+                                        }
+                                        else if (assignment.Status == AssignmentStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning">معلق</span>
+                                        }
+                                        else if (assignment.Status == AssignmentStatus.Late)
+                                        {
+                                            <span class="badge bg-danger">متأخر</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (assignment.Status == AssignmentStatus.Completed)
+                                        {
+                                            @assignment.Grade
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (assignment.Status != AssignmentStatus.Completed)
+                                        {
+                                            <button class="btn btn-sm btn-primary">بدء الواجب</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-secondary">عرض التفاصيل</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedFilter = "all";
+
+    private enum AssignmentStatus
+    {
+        Pending,
+        Completed,
+        Late
+    }
+
+    private class Assignment
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string SubjectName { get; set; } = string.Empty;
+        public DateTime DueDate { get; set; }
+        public AssignmentStatus Status { get; set; }
+        public int? Grade { get; set; }
+    }
+
+    private List<Assignment> GetAllAssignments()
+    {
+        // In a real app, this would come from a database or service
+        return new List<Assignment>
+        {
+            new Assignment 
+            { 
+                Id = 1, 
+                Title = "تمارين على قواعد الأزمنة", 
+                SubjectName = "اللغة الإنجليزية",
+                DueDate = DateTime.Now.AddDays(2),
+                Status = AssignmentStatus.Pending
+            },
+            new Assignment 
+            { 
+                Id = 2, 
+                Title = "حل مسائل المعادلات التفاضلية", 
+                SubjectName = "الرياضيات",
+                DueDate = DateTime.Now.AddDays(-1),
+                Status = AssignmentStatus.Late
+            },
+            new Assignment 
+            { 
+                Id = 3, 
+                Title = "تقرير عن تجربة الكهرباء", 
+                SubjectName = "العلوم",
+                DueDate = DateTime.Now.AddDays(5),
+                Status = AssignmentStatus.Pending
+            },
+            new Assignment 
+            { 
+                Id = 4, 
+                Title = "بحث عن الحضارة الفرعونية", 
+                SubjectName = "التاريخ",
+                DueDate = DateTime.Now.AddDays(-5),
+                Status = AssignmentStatus.Completed,
+                Grade = 85
+            },
+            new Assignment 
+            { 
+                Id = 5, 
+                Title = "تقرير عن القارة الأفريقية", 
+                SubjectName = "الجغرافيا",
+                DueDate = DateTime.Now.AddDays(-10),
+                Status = AssignmentStatus.Completed,
+                Grade = 92
+            },
+            new Assignment 
+            { 
+                Id = 6, 
+                Title = "مشروع برمجة بلغة C#", 
+                SubjectName = "علوم الحاسب",
+                DueDate = DateTime.Now.AddDays(7),
+                Status = AssignmentStatus.Pending
+            }
+        };
+    }
+
+    private List<Assignment> GetFilteredAssignments()
+    {
+        var assignments = GetAllAssignments();
+        
+        return selectedFilter switch
+        {
+            "pending" => assignments.Where(a => a.Status == AssignmentStatus.Pending || a.Status == AssignmentStatus.Late).ToList(),
+            "completed" => assignments.Where(a => a.Status == AssignmentStatus.Completed).ToList(),
+            _ => assignments
+        };
+    }
+}

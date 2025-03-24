@@ -1,14 +1,102 @@
-﻿@page "/"
+@page "/"
 @using MySchool.Shared.Services
+@using MySchool.Shared.Models
 @inject IFormFactor FormFactor
+@inject NavigationManager NavigationManager
 
-<PageTitle>Home</PageTitle>
+<PageTitle>MySchool - Educational Platform</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container">
+    <h1 class="text-center mb-4">MySchool Educational Platform</h1>
+    
+    <div class="row">
+        @foreach (var subject in subjects)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card subject-card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">@subject.Name</h3>
+                        <p class="card-text">@subject.Description</p>
+                        <button class="btn btn-primary" @onclick="() => SelectSubject(subject)">
+                            اختر المادة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
-Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
+<style>
+    .subject-card {
+        transition: transform 0.3s;
+        height: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .subject-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    .btn-primary {
+        background-color: #4a6baf;
+        border-color: #4a6baf;
+    }
+</style>
 
 @code {
-    private string factor => FormFactor.GetFormFactor();
-    private string platform => FormFactor.GetPlatform();
+    // Sample subjects - in a real app, these would come from a database
+    private List<Subject> subjects = new List<Subject>
+    {
+        new Subject 
+        { 
+            Id = 1, 
+            Name = "English", 
+            Description = "Learn English vocabulary, grammar, and more",
+            ImageUrl = "images/english.jpg"
+        },
+        new Subject 
+        { 
+            Id = 2, 
+            Name = "Mathematics", 
+            Description = "Explore mathematics concepts and problem solving",
+            ImageUrl = "images/math.jpg"
+        },
+        new Subject 
+        { 
+            Id = 3, 
+            Name = "Science", 
+            Description = "Discover scientific principles and experiments",
+            ImageUrl = "images/science.jpg"
+        },
+        new Subject 
+        { 
+            Id = 4, 
+            Name = "History", 
+            Description = "Explore historical events and civilizations",
+            ImageUrl = "images/history.jpg"
+        },
+        new Subject 
+        { 
+            Id = 5, 
+            Name = "Geography", 
+            Description = "Learn about countries, cultures, and landforms",
+            ImageUrl = "images/geography.jpg"
+        },
+        new Subject 
+        { 
+            Id = 6, 
+            Name = "Computer Science", 
+            Description = "Learn programming and computer concepts",
+            ImageUrl = "images/cs.jpg"
+        }
+    };
+    
+    private void SelectSubject(Subject subject)
+    {
+        // Navigate to the subject details page
+        NavigationManager.NavigateTo($"/subject/{subject.Id}");
+    }
 }

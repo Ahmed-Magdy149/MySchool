@@ -1,0 +1,367 @@
+@using MySchool.Shared.Models
+
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h2 class="mb-0">الاختبار القصير</h2>
+    </div>
+    <div class="card-body">
+        @if (!quizCompleted)
+        {
+            <div class="quiz-progress mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>السؤال @(currentQuestionIndex + 1) من @questions.Count</span>
+                    <span>الوقت المتبقي: @timeRemaining ثانية</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-info" role="progressbar" 
+                         style="width: @(((currentQuestionIndex + 1) * 100) / questions.Count)%" 
+                         aria-valuenow="@(((currentQuestionIndex + 1) * 100) / questions.Count)" 
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            @if (currentQuestionIndex < questions.Count)
+            {
+                var question = questions[currentQuestionIndex];
+                
+                <div class="question-container">
+                    <h4>@question.Text</h4>
+                    
+                    <div class="options-container mt-3">
+                        @foreach (var answer in question.Answers)
+                        {
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="question_@question.Id" 
+                                       id="answer_@answer.Id" value="@answer.Id"
+                                       checked="@(selectedAnswers.ContainsKey(question.Id) && selectedAnswers[question.Id] == answer.Id)"
+                                       @onchange="() => SelectAnswer(question.Id, answer.Id)" />
+                                <label class="form-check-label" for="answer_@answer.Id">
+                                    @answer.Text
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-secondary" @onclick="PreviousQuestion" disabled="@(currentQuestionIndex == 0)">
+                            <i class="bi bi-arrow-left"></i> السابق
+                        </button>
+                        
+                        <button class="btn btn-primary" @onclick="NextQuestion">
+                            @if (currentQuestionIndex == questions.Count - 1)
+                            {
+                                <span>إنهاء الاختبار <i class="bi bi-check-circle"></i></span>
+                            }
+                            else
+                            {
+                                <span>التالي <i class="bi bi-arrow-right"></i></span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="quiz-results text-center">
+                <h3>نتائج الاختبار</h3>
+                
+                <div class="score-container my-4">
+                    <div class="display-4 mb-2">@score / @questions.Count</div>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar @GetScoreColorClass()" role="progressbar" 
+                             style="width: @(score * 100 / questions.Count)%" 
+                             aria-valuenow="@(score * 100 / questions.Count)" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            @(score * 100 / questions.Count)%
+                        </div>
+                    </div>
+                    <p class="lead">@GetScoreMessage()</p>
+                </div>
+                
+                <div class="review-container mt-4">
+                    <h4>مراجعة الإجابات</h4>
+                    
+                    <div class="list-group text-start mt-3">
+                        @foreach (var question in questions)
+                        {
+                            bool isCorrect = selectedAnswers.ContainsKey(question.Id) && 
+                                            question.Answers.First(a => a.Id == selectedAnswers[question.Id]).IsCorrect;
+                            
+                            <div class="list-group-item @(isCorrect ? "list-group-item-success" : "list-group-item-danger")">
+                                <h5>
+                                    @if (isCorrect)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                                    }
+                                    @question.Text
+                                </h5>
+                                
+                                <div class="ms-4">
+                                    @if (selectedAnswers.ContainsKey(question.Id))
+                                    {
+                                        var selectedAnswer = question.Answers.First(a => a.Id == selectedAnswers[question.Id]);
+                                        <p>إجابتك: @selectedAnswer.Text</p>
+                                        
+                                        if (!isCorrect)
+                                        {
+                                            var correctAnswer = question.Answers.First(a => a.IsCorrect);
+                                            <p class="text-success">الإجابة الصحيحة: @correctAnswer.Text</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">لم تجب على هذا السؤال</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button class="btn btn-primary" @onclick="RestartQuiz">
+                        <i class="bi bi-arrow-repeat"></i> إعادة الاختبار
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    private List<Question> questions = new List<Question>();
+    private Dictionary<int, int> selectedAnswers = new Dictionary<int, int>();
+    private int currentQuestionIndex = 0;
+    private bool quizCompleted = false;
+    private int score = 0;
+    private int timeRemaining = 30; // seconds per question
+    private System.Threading.Timer? timer;
+
+    protected override void OnInitialized()
+    {
+        // In a real app, this would fetch data from a service based on ModuleId
+        LoadQuestions();
+        StartTimer();
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Reset the quiz when the ModuleId changes
+        if (ModuleId > 0)
+        {
+            RestartQuiz();
+        }
+    }
+
+    private void LoadQuestions()
+    {
+        // Sample data - in a real app, this would come from a database
+        questions = new List<Question>
+        {
+            new Question 
+            { 
+                Id = 1, 
+                Text = "ما هي عاصمة مصر؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 1, Text = "الإسكندرية", IsCorrect = false },
+                    new Answer { Id = 2, Text = "القاهرة", IsCorrect = true },
+                    new Answer { Id = 3, Text = "الأقصر", IsCorrect = false },
+                    new Answer { Id = 4, Text = "أسوان", IsCorrect = false }
+                },
+                Points = 1
+            },
+            new Question 
+            { 
+                Id = 2, 
+                Text = "ما هو أطول نهر في العالم؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 5, Text = "نهر الأمازون", IsCorrect = false },
+                    new Answer { Id = 6, Text = "نهر المسيسيبي", IsCorrect = false },
+                    new Answer { Id = 7, Text = "نهر النيل", IsCorrect = true },
+                    new Answer { Id = 8, Text = "نهر اليانغتسي", IsCorrect = false }
+                },
+                Points = 1
+            },
+            new Question 
+            { 
+                Id = 3, 
+                Text = "ما هي أكبر قارة في العالم من حيث المساحة؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 9, Text = "أفريقيا", IsCorrect = false },
+                    new Answer { Id = 10, Text = "أمريكا الشمالية", IsCorrect = false },
+                    new Answer { Id = 11, Text = "أوروبا", IsCorrect = false },
+                    new Answer { Id = 12, Text = "آسيا", IsCorrect = true }
+                },
+                Points = 1
+            },
+            new Question 
+            { 
+                Id = 4, 
+                Text = "ما هو العنصر الكيميائي الذي رمزه O؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 13, Text = "الأكسجين", IsCorrect = true },
+                    new Answer { Id = 14, Text = "الذهب", IsCorrect = false },
+                    new Answer { Id = 15, Text = "الفضة", IsCorrect = false },
+                    new Answer { Id = 16, Text = "الحديد", IsCorrect = false }
+                },
+                Points = 1
+            },
+            new Question 
+            { 
+                Id = 5, 
+                Text = "من هو مؤلف رواية 'الحرب والسلام'؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 17, Text = "فيودور دوستويفسكي", IsCorrect = false },
+                    new Answer { Id = 18, Text = "ليو تولستوي", IsCorrect = true },
+                    new Answer { Id = 19, Text = "تشارلز ديكنز", IsCorrect = false },
+                    new Answer { Id = 20, Text = "فيكتور هوغو", IsCorrect = false }
+                },
+                Points = 1
+            }
+        };
+    }
+
+    private void StartTimer()
+    {
+        // Start a timer that ticks every second
+        timer = new System.Threading.Timer(async _ =>
+        {
+            if (timeRemaining > 0)
+            {
+                timeRemaining--;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                // Time's up for this question, move to the next
+                await InvokeAsync(() =>
+                {
+                    if (currentQuestionIndex < questions.Count - 1)
+                    {
+                        NextQuestion();
+                    }
+                    else
+                    {
+                        CompleteQuiz();
+                    }
+                });
+            }
+        }, null, 0, 1000);
+    }
+
+    private void SelectAnswer(int questionId, int answerId)
+    {
+        selectedAnswers[questionId] = answerId;
+    }
+
+    private void PreviousQuestion()
+    {
+        if (currentQuestionIndex > 0)
+        {
+            currentQuestionIndex--;
+            ResetTimer();
+        }
+    }
+
+    private void NextQuestion()
+    {
+        if (currentQuestionIndex < questions.Count - 1)
+        {
+            currentQuestionIndex++;
+            ResetTimer();
+        }
+        else
+        {
+            CompleteQuiz();
+        }
+    }
+
+    private void ResetTimer()
+    {
+        timeRemaining = 30;
+    }
+
+    private void CompleteQuiz()
+    {
+        // Stop the timer
+        timer?.Change(Timeout.Infinite, Timeout.Infinite);
+        
+        // Calculate the score
+        score = 0;
+        foreach (var question in questions)
+        {
+            if (selectedAnswers.ContainsKey(question.Id))
+            {
+                var selectedAnswerId = selectedAnswers[question.Id];
+                var selectedAnswer = question.Answers.FirstOrDefault(a => a.Id == selectedAnswerId);
+                
+                if (selectedAnswer != null && selectedAnswer.IsCorrect)
+                {
+                    score += question.Points;
+                }
+            }
+        }
+        
+        quizCompleted = true;
+    }
+
+    private void RestartQuiz()
+    {
+        // Reset quiz state
+        currentQuestionIndex = 0;
+        selectedAnswers.Clear();
+        quizCompleted = false;
+        score = 0;
+        ResetTimer();
+        
+        // Restart the timer
+        timer?.Dispose();
+        StartTimer();
+    }
+
+    private string GetScoreColorClass()
+    {
+        double percentage = (double)score / questions.Count;
+        
+        if (percentage >= 0.8)
+            return "bg-success";
+        else if (percentage >= 0.6)
+            return "bg-info";
+        else if (percentage >= 0.4)
+            return "bg-warning";
+        else
+            return "bg-danger";
+    }
+
+    private string GetScoreMessage()
+    {
+        double percentage = (double)score / questions.Count;
+        
+        if (percentage >= 0.8)
+            return "ممتاز! أداء رائع!";
+        else if (percentage >= 0.6)
+            return "جيد جدًا! استمر في التحسن.";
+        else if (percentage >= 0.4)
+            return "جيد. يمكنك تحسين أدائك بمزيد من الدراسة.";
+        else
+            return "تحتاج إلى مزيد من الدراسة. لا تستسلم!";
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

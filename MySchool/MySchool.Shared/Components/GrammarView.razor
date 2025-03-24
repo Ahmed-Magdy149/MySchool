@@ -1,0 +1,226 @@
+@using MySchool.Shared.Models
+
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h2 class="mb-0">القواعد</h2>
+    </div>
+    <div class="card-body">
+        <div class="accordion" id="grammarAccordion">
+            @foreach (var lesson in grammarLessons)
+            {
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button @(lesson.Id != 1 ? "collapsed" : "")" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapse@(lesson.Id)" aria-expanded="@(lesson.Id == 1 ? "true" : "false")" 
+                                aria-controls="collapse@(lesson.Id)">
+                            @lesson.Title
+                        </button>
+                    </h2>
+                    <div id="collapse@(lesson.Id)" class="accordion-collapse collapse @(lesson.Id == 1 ? "show" : "")" 
+                         data-bs-parent="#grammarAccordion">
+                        <div class="accordion-body">
+                            <div class="mb-4">
+                                @((MarkupString)lesson.Content)
+                            </div>
+                            
+                            <div class="examples p-3 bg-light rounded mb-3">
+                                <h5>أمثلة:</h5>
+                                <ul>
+                                    @foreach (var example in lesson.Examples)
+                                    {
+                                        <li>
+                                            <strong>@example.Text</strong>
+                                            <p>@example.Explanation</p>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4">
+            <h3>تمارين</h3>
+            <div class="list-group">
+                @foreach (var exercise in exercises)
+                {
+                    <div class="list-group-item">
+                        <h5>@exercise.Question</h5>
+                        <div class="form-check">
+                            @foreach (var option in exercise.Options)
+                            {
+                                <div class="mb-2">
+                                    <input class="form-check-input" type="radio" name="exercise_@exercise.Id" id="option_@exercise.Id,@option.Id"
+                                           @onchange="(e) => SelectAnswer(exercise.Id, option.Id)" />
+                                    <label class="form-check-label" for="option_@exercise.Id,@option.Id">
+                                        @option.Text
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        @if (answeredExercises.ContainsKey(exercise.Id))
+                        {
+                            <div class="mt-2 @(IsCorrect(exercise.Id) ? "text-success" : "text-danger")">
+                                @if (IsCorrect(exercise.Id))
+                                {
+                                    <span><i class="bi bi-check-circle"></i> إجابة صحيحة!</span>
+                                }
+                                else
+                                {
+                                    <span><i class="bi bi-x-circle"></i> إجابة خاطئة. حاول مرة أخرى.</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    private List<GrammarLesson> grammarLessons = new List<GrammarLesson>();
+    private List<GrammarExercise> exercises = new List<GrammarExercise>();
+    private Dictionary<int, int> answeredExercises = new Dictionary<int, int>();
+
+    protected override void OnInitialized()
+    {
+        // In a real app, this would fetch data from a service based on ModuleId
+        LoadGrammarLessons();
+        LoadExercises();
+    }
+
+    private void LoadGrammarLessons()
+    {
+        // Sample data - in a real app, this would come from a database
+        grammarLessons = new List<GrammarLesson>
+        {
+            new GrammarLesson 
+            { 
+                Id = 1, 
+                Title = "الجمل البسيطة", 
+                Content = "<p>الجملة البسيطة هي أبسط نوع من الجمل وتتكون من فاعل وفعل.</p><p>مثال: <strong>The boy runs.</strong></p>",
+                Examples = new List<GrammarExample>
+                {
+                    new GrammarExample { Text = "She sings.", Explanation = "فاعل (She) + فعل (sings)" },
+                    new GrammarExample { Text = "They play football.", Explanation = "فاعل (They) + فعل (play) + مفعول به (football)" }
+                }
+            },
+            new GrammarLesson 
+            { 
+                Id = 2, 
+                Title = "الأزمنة الأساسية", 
+                Content = "<p>اللغة الإنجليزية لها ثلاثة أزمنة أساسية: الماضي والحاضر والمستقبل.</p>",
+                Examples = new List<GrammarExample>
+                {
+                    new GrammarExample { Text = "I walked to school yesterday.", Explanation = "زمن ماضي بسيط" },
+                    new GrammarExample { Text = "I walk to school every day.", Explanation = "زمن مضارع بسيط" },
+                    new GrammarExample { Text = "I will walk to school tomorrow.", Explanation = "زمن مستقبل بسيط" }
+                }
+            },
+            new GrammarLesson 
+            { 
+                Id = 3, 
+                Title = "الصفات والظروف", 
+                Content = "<p>الصفات تصف الأسماء، بينما الظروف تصف الأفعال أو الصفات أو ظروف أخرى.</p>",
+                Examples = new List<GrammarExample>
+                {
+                    new GrammarExample { Text = "The quick brown fox.", Explanation = "quick و brown هي صفات تصف fox" },
+                    new GrammarExample { Text = "She runs quickly.", Explanation = "quickly هو ظرف يصف كيفية الجري" }
+                }
+            }
+        };
+    }
+
+    private void LoadExercises()
+    {
+        // Sample data - in a real app, this would come from a database
+        exercises = new List<GrammarExercise>
+        {
+            new GrammarExercise 
+            { 
+                Id = 1, 
+                Question = "أي من الجمل التالية تستخدم الزمن المضارع البسيط بشكل صحيح؟", 
+                Options = new List<GrammarOption> 
+                { 
+                    new GrammarOption { Id = 1, Text = "She walking to school." },
+                    new GrammarOption { Id = 2, Text = "She walks to school.", IsCorrect = true },
+                    new GrammarOption { Id = 3, Text = "She walk to school." }
+                }
+            },
+            new GrammarExercise 
+            { 
+                Id = 2, 
+                Question = "أي من الجمل التالية تستخدم الصفة بشكل صحيح؟", 
+                Options = new List<GrammarOption> 
+                { 
+                    new GrammarOption { Id = 1, Text = "The quickly boy runs." },
+                    new GrammarOption { Id = 2, Text = "The boy runs quick." },
+                    new GrammarOption { Id = 3, Text = "The quick boy runs.", IsCorrect = true }
+                }
+            },
+            new GrammarExercise 
+            { 
+                Id = 3, 
+                Question = "أي من الجمل التالية تستخدم الزمن الماضي البسيط بشكل صحيح؟", 
+                Options = new List<GrammarOption> 
+                { 
+                    new GrammarOption { Id = 1, Text = "She played tennis yesterday.", IsCorrect = true },
+                    new GrammarOption { Id = 2, Text = "She play tennis yesterday." },
+                    new GrammarOption { Id = 3, Text = "She will played tennis yesterday." }
+                }
+            }
+        };
+    }
+
+    private void SelectAnswer(int exerciseId, int optionId)
+    {
+        answeredExercises[exerciseId] = optionId;
+    }
+
+    private bool IsCorrect(int exerciseId)
+    {
+        if (!answeredExercises.ContainsKey(exerciseId))
+            return false;
+
+        var exercise = exercises.FirstOrDefault(e => e.Id == exerciseId);
+        if (exercise == null)
+            return false;
+
+        var selectedOption = exercise.Options.FirstOrDefault(o => o.Id == answeredExercises[exerciseId]);
+        return selectedOption?.IsCorrect ?? false;
+    }
+
+    private class GrammarLesson
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public List<GrammarExample> Examples { get; set; } = new List<GrammarExample>();
+    }
+
+    private class GrammarExample
+    {
+        public string Text { get; set; } = string.Empty;
+        public string Explanation { get; set; } = string.Empty;
+    }
+
+    private class GrammarExercise
+    {
+        public int Id { get; set; }
+        public string Question { get; set; } = string.Empty;
+        public List<GrammarOption> Options { get; set; } = new List<GrammarOption>();
+    }
+
+    private class GrammarOption
+    {
+        public int Id { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public bool IsCorrect { get; set; }
+    }
+}

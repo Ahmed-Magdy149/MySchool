@@ -1,0 +1,103 @@
+@page "/module/{ModuleId:int}"
+@using MySchool.Shared.Models
+@using MySchool.Shared.Components
+@inject NavigationManager NavigationManager
+
+<PageTitle>@module?.Title - MySchool</PageTitle>
+
+<div class="container mt-4">
+    @if (module != null)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>@module.Title</h1>
+            <button class="btn btn-outline-primary" @onclick="GoBack">
+                <i class="bi bi-arrow-left"></i> العودة
+            </button>
+        </div>
+
+        <p class="lead mb-4">@module.Description</p>
+
+        @switch (module.Type)
+        {
+            case ModuleType.Vocabulary:
+                <VocabularyView ModuleId="@ModuleId" />
+                break;
+            case ModuleType.Grammar:
+                <GrammarView ModuleId="@ModuleId" />
+                break;
+            case ModuleType.Quiz:
+                <QuizView ModuleId="@ModuleId" />
+                break;
+            case ModuleType.Exam:
+                <ExamView ModuleId="@ModuleId" />
+                break;
+        }
+    }
+    else
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">جاري تحميل المحتوى...</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    private Module? module;
+    private int subjectId;
+
+    protected override void OnInitialized()
+    {
+        // In a real app, this would fetch data from a service
+        LoadModule();
+    }
+
+    private void LoadModule()
+    {
+        // Simulating data fetch - in a real app, this would come from a service
+        var allModules = new List<Module>
+        {
+            // English modules
+            new Module { Id = 1, SubjectId = 1, Title = "Basic English Vocabulary", Description = "Learn fundamental English words and phrases", Type = ModuleType.Vocabulary, Order = 1 },
+            new Module { Id = 2, SubjectId = 1, Title = "English Grammar Basics", Description = "Master basic English grammar rules", Type = ModuleType.Grammar, Order = 1 },
+            new Module { Id = 3, SubjectId = 1, Title = "English Vocabulary Quiz", Description = "Test your English vocabulary knowledge", Type = ModuleType.Quiz, Order = 1 },
+            new Module { Id = 4, SubjectId = 1, Title = "English Comprehensive Exam", Description = "Final assessment of English skills", Type = ModuleType.Exam, Order = 1 },
+            
+            // Math modules
+            new Module { Id = 5, SubjectId = 2, Title = "Math Terminology", Description = "Learn essential mathematical terms", Type = ModuleType.Vocabulary, Order = 1 },
+            new Module { Id = 6, SubjectId = 2, Title = "Algebraic Rules", Description = "Understand algebraic principles and formulas", Type = ModuleType.Grammar, Order = 1 },
+            new Module { Id = 7, SubjectId = 2, Title = "Math Practice Quiz", Description = "Test your mathematical problem-solving skills", Type = ModuleType.Quiz, Order = 1 },
+            new Module { Id = 8, SubjectId = 2, Title = "Mathematics Final Exam", Description = "Comprehensive assessment of mathematical knowledge", Type = ModuleType.Exam, Order = 1 },
+            
+            // Science modules
+            new Module { Id = 9, SubjectId = 3, Title = "Scientific Terminology", Description = "Learn key scientific terms and concepts", Type = ModuleType.Vocabulary, Order = 1 },
+            new Module { Id = 10, SubjectId = 3, Title = "Scientific Principles", Description = "Understand fundamental scientific laws and theories", Type = ModuleType.Grammar, Order = 1 },
+            new Module { Id = 11, SubjectId = 3, Title = "Science Quiz", Description = "Test your scientific knowledge", Type = ModuleType.Quiz, Order = 1 },
+            new Module { Id = 12, SubjectId = 3, Title = "Science Comprehensive Exam", Description = "Final assessment of scientific understanding", Type = ModuleType.Exam, Order = 1 },
+        };
+
+        module = allModules.FirstOrDefault(m => m.Id == ModuleId);
+        
+        if (module != null)
+        {
+            subjectId = module.SubjectId;
+        }
+    }
+
+    private void GoBack()
+    {
+        if (module != null)
+        {
+            NavigationManager.NavigateTo($"/subject/{module.SubjectId}");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

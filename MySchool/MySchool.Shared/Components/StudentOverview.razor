@@ -1,0 +1,132 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <!-- Welcome Card -->
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2>مرحباً، أحمد!</h2>
+                <p class="lead">نسبة إكمال المواد الدراسية: 65%</p>
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>لديك 3 واجبات مستحقة هذا الأسبوع و 1 اختبار قادم.</p>
+                <button class="btn btn-primary">متابعة الدراسة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">النشاطات الأخيرة</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        أكملت درس "قواعد اللغة الإنجليزية - الأزمنة"
+                        <span class="badge bg-primary rounded-pill">اليوم</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        حصلت على 85% في اختبار الرياضيات
+                        <span class="badge bg-primary rounded-pill">أمس</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        أكملت واجب العلوم
+                        <span class="badge bg-primary rounded-pill">قبل 3 أيام</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        بدأت درس "تاريخ الحضارات القديمة"
+                        <span class="badge bg-primary rounded-pill">قبل 5 أيام</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">الأحداث القادمة</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">اختبار الرياضيات</h6>
+                            <small class="text-muted">الفصل الثالث - المعادلات</small>
+                        </div>
+                        <span class="badge bg-danger rounded-pill">غداً</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">تسليم واجب العلوم</h6>
+                            <small class="text-muted">تجربة الكهرباء</small>
+                        </div>
+                        <span class="badge bg-warning rounded-pill">3 أيام</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">اختبار اللغة الإنجليزية</h6>
+                            <small class="text-muted">الوحدة الرابعة</small>
+                        </div>
+                        <span class="badge bg-info rounded-pill">أسبوع</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access Subjects -->
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">المواد الدراسية</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var subject in GetSampleSubjects())
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">@subject.Name</h5>
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar" role="progressbar" style="width: @(subject.Progress)%" 
+                                             aria-valuenow="@subject.Progress" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="card-text">@subject.Progress% مكتمل</p>
+                                    <button class="btn btn-sm btn-outline-primary">متابعة</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class SubjectProgress
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int Progress { get; set; }
+    }
+
+    private List<SubjectProgress> GetSampleSubjects()
+    {
+        return new List<SubjectProgress>
+        {
+            new SubjectProgress { Id = 1, Name = "اللغة الإنجليزية", Progress = 75 },
+            new SubjectProgress { Id = 2, Name = "الرياضيات", Progress = 60 },
+            new SubjectProgress { Id = 3, Name = "العلوم", Progress = 85 },
+            new SubjectProgress { Id = 4, Name = "التاريخ", Progress = 45 },
+            new SubjectProgress { Id = 5, Name = "الجغرافيا", Progress = 30 },
+            new SubjectProgress { Id = 6, Name = "علوم الحاسب", Progress = 90 }
+        };
+    }
+}

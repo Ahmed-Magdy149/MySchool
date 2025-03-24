@@ -1,0 +1,109 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <!-- Stats cards -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            عدد الطلاب
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">215</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            عدد المعلمين
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">25</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-person-workspace fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            عدد المواد
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-book fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            الاختبارات هذا الأسبوع
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-file-earmark-text fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent activity -->
+    <div class="col-12 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">النشاطات الأخيرة</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        تسجيل طالب جديد: أحمد محمد
+                        <span class="badge bg-primary rounded-pill">منذ 5 دقائق</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        إضافة اختبار جديد لمادة الرياضيات
+                        <span class="badge bg-primary rounded-pill">منذ 30 دقيقة</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        تعديل جدول الحصص للصف الثالث
+                        <span class="badge bg-primary rounded-pill">منذ ساعتين</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        إضافة وحدة جديدة لمادة العلوم
+                        <span class="badge bg-primary rounded-pill">منذ 3 ساعات</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Component logic can be added here if needed
+}

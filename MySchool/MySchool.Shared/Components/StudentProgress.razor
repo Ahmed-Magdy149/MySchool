@@ -1,0 +1,261 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <!-- Overall Progress Card -->
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">التقدم الدراسي الإجمالي</h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center">
+                        <div class="progress-circle mx-auto" style="--progress: @overallProgress">
+                            <div class="progress-circle-inner">
+                                <div class="progress-circle-value">@overallProgress%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h4>المعدل التراكمي: @gpa</h4>
+                        <p>أكملت @completedModules من أصل @totalModules وحدة دراسية</p>
+                        <p>لديك @pendingAssignments واجبات معلقة و @upcomingExams اختبارات قادمة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Progress -->
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">التقدم حسب المادة</h5>
+            </div>
+            <div class="card-body">
+                @foreach (var subject in GetSubjectsProgress())
+                {
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0">@subject.Name</h6>
+                            <span>@subject.Progress%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar @GetProgressBarColor(subject.Progress)" 
+                                 role="progressbar" 
+                                 style="width: @(subject.Progress)%" 
+                                 aria-valuenow="@subject.Progress" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Distribution -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">توزيع الدرجات</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>التقدير</th>
+                                <th>النطاق</th>
+                                <th>عدد المواد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">A</span></td>
+                                <td>90-100</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">B</span></td>
+                                <td>80-89</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info">C</span></td>
+                                <td>70-79</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning">D</span></td>
+                                <td>60-69</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">F</span></td>
+                                <td>0-59</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Grades -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">آخر الدرجات</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>النشاط</th>
+                                <th>الدرجة</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grade in GetRecentGrades())
+                            {
+                                <tr>
+                                    <td>@grade.SubjectName</td>
+                                    <td>@grade.ActivityName</td>
+                                    <td>@grade.Score</td>
+                                    <td>@grade.Date.ToString("yyyy/MM/dd")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress-circle {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        background-image: conic-gradient(#4a6baf calc(var(--progress) * 1%), #f0f0f0 0);
+    }
+    
+    .progress-circle-inner {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .progress-circle-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #4a6baf;
+    }
+</style>
+
+@code {
+    // Sample data - in a real app, these would come from a service or database
+    private int overallProgress = 64;
+    private string gpa = "3.2";
+    private int completedModules = 32;
+    private int totalModules = 50;
+    private int pendingAssignments = 4;
+    private int upcomingExams = 3;
+
+    private class SubjectProgress
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int Progress { get; set; }
+    }
+
+    private class GradeRecord
+    {
+        public string SubjectName { get; set; } = string.Empty;
+        public string ActivityName { get; set; } = string.Empty;
+        public string Score { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+    }
+
+    private List<SubjectProgress> GetSubjectsProgress()
+    {
+        return new List<SubjectProgress>
+        {
+            new SubjectProgress { Id = 1, Name = "اللغة الإنجليزية", Progress = 75 },
+            new SubjectProgress { Id = 2, Name = "الرياضيات", Progress = 60 },
+            new SubjectProgress { Id = 3, Name = "العلوم", Progress = 85 },
+            new SubjectProgress { Id = 4, Name = "التاريخ", Progress = 45 },
+            new SubjectProgress { Id = 5, Name = "الجغرافيا", Progress = 30 },
+            new SubjectProgress { Id = 6, Name = "علوم الحاسب", Progress = 90 }
+        };
+    }
+
+    private List<GradeRecord> GetRecentGrades()
+    {
+        return new List<GradeRecord>
+        {
+            new GradeRecord 
+            { 
+                SubjectName = "اللغة الإنجليزية", 
+                ActivityName = "اختبار الوحدة الثالثة", 
+                Score = "85/100",
+                Date = DateTime.Now.AddDays(-2)
+            },
+            new GradeRecord 
+            { 
+                SubjectName = "الرياضيات", 
+                ActivityName = "واجب المعادلات", 
+                Score = "18/20",
+                Date = DateTime.Now.AddDays(-4)
+            },
+            new GradeRecord 
+            { 
+                SubjectName = "العلوم", 
+                ActivityName = "تقرير المختبر", 
+                Score = "95/100",
+                Date = DateTime.Now.AddDays(-7)
+            },
+            new GradeRecord 
+            { 
+                SubjectName = "التاريخ", 
+                ActivityName = "اختبار منتصف الفصل", 
+                Score = "78/100",
+                Date = DateTime.Now.AddDays(-10)
+            },
+            new GradeRecord 
+            { 
+                SubjectName = "علوم الحاسب", 
+                ActivityName = "مشروع البرمجة", 
+                Score = "92/100",
+                Date = DateTime.Now.AddDays(-14)
+            }
+        };
+    }
+
+    private string GetProgressBarColor(int progress)
+    {
+        return progress switch
+        {
+            >= 90 => "bg-success",
+            >= 70 => "bg-primary",
+            >= 50 => "bg-info",
+            >= 30 => "bg-warning",
+            _ => "bg-danger"
+        };
+    }
+}

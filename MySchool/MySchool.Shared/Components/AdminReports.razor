@@ -1,0 +1,209 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <!-- Performance Overview Card -->
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">نظرة عامة على الأداء</h6>
+                <div>
+                    <select class="form-select form-select-sm">
+                        <option selected>الفصل الدراسي الحالي</option>
+                        <option>الفصل الدراسي السابق</option>
+                        <option>العام الدراسي كامل</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h5>متوسط الدرجات حسب المادة</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>المادة</th>
+                                        <th>المتوسط</th>
+                                        <th>التغيير</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>اللغة الإنجليزية</td>
+                                        <td>82%</td>
+                                        <td><span class="text-success">+3%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>الرياضيات</td>
+                                        <td>75%</td>
+                                        <td><span class="text-danger">-2%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>العلوم</td>
+                                        <td>88%</td>
+                                        <td><span class="text-success">+5%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>التاريخ</td>
+                                        <td>79%</td>
+                                        <td><span class="text-success">+1%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>الجغرافيا</td>
+                                        <td>76%</td>
+                                        <td><span class="text-danger">-1%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>علوم الحاسب</td>
+                                        <td>85%</td>
+                                        <td><span class="text-success">+4%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h5>توزيع الدرجات</h5>
+                        <div class="progress-stacked mb-4">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">A (25%)</div>
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">B (35%)</div>
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">C (20%)</div>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">D (15%)</div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100">F (5%)</div>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    معدل النجاح
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">95%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card border-left-danger shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                    معدل الرسوب
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">5%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Report -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">تقرير الحضور</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>معدل الحضور</th>
+                                <th>التغيير</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>اللغة الإنجليزية</td>
+                                <td>92%</td>
+                                <td><span class="text-success">+2%</span></td>
+                            </tr>
+                            <tr>
+                                <td>الرياضيات</td>
+                                <td>88%</td>
+                                <td><span class="text-danger">-1%</span></td>
+                            </tr>
+                            <tr>
+                                <td>العلوم</td>
+                                <td>94%</td>
+                                <td><span class="text-success">+3%</span></td>
+                            </tr>
+                            <tr>
+                                <td>التاريخ</td>
+                                <td>85%</td>
+                                <td><span class="text-danger">-2%</span></td>
+                            </tr>
+                            <tr>
+                                <td>الجغرافيا</td>
+                                <td>87%</td>
+                                <td><span class="text-success">+1%</span></td>
+                            </tr>
+                            <tr>
+                                <td>علوم الحاسب</td>
+                                <td>91%</td>
+                                <td><span class="text-success">+2%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <h5>متوسط الحضور الإجمالي: 90%</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Usage -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">استخدام النظام</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6>عدد الزيارات اليومية</h6>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small>متوسط 450 زيارة يومياً</small>
+                </div>
+                <div class="mb-4">
+                    <h6>معدل إكمال الواجبات</h6>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 82%" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small>82% من الواجبات تم إكمالها في الوقت المحدد</small>
+                </div>
+                <div class="mb-4">
+                    <h6>معدل المشاركة في الاختبارات</h6>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 95%" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small>95% من الطلاب شاركوا في الاختبارات</small>
+                </div>
+                <div class="mb-4">
+                    <h6>استخدام المواد التعليمية</h6>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small>68% من المواد التعليمية تم الوصول إليها</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Component logic can be added here if needed
+}

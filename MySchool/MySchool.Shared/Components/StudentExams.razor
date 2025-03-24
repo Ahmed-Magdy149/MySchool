@@ -1,0 +1,182 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">الاختبارات</h5>
+                <div>
+                    <select class="form-select form-select-sm" @bind="selectedFilter">
+                        <option value="all">جميع الاختبارات</option>
+                        <option value="upcoming">الاختبارات القادمة</option>
+                        <option value="completed">الاختبارات المكتملة</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>عنوان الاختبار</th>
+                                <th>التاريخ</th>
+                                <th>المدة</th>
+                                <th>الحالة</th>
+                                <th>الدرجة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var exam in GetFilteredExams())
+                            {
+                                <tr>
+                                    <td>@exam.SubjectName</td>
+                                    <td>@exam.Title</td>
+                                    <td>@exam.Date.ToString("yyyy/MM/dd")</td>
+                                    <td>@exam.Duration دقيقة</td>
+                                    <td>
+                                        @if (exam.Status == ExamStatus.Upcoming)
+                                        {
+                                            <span class="badge bg-info">قادم</span>
+                                        }
+                                        else if (exam.Status == ExamStatus.Available)
+                                        {
+                                            <span class="badge bg-success">متاح</span>
+                                        }
+                                        else if (exam.Status == ExamStatus.Completed)
+                                        {
+                                            <span class="badge bg-secondary">مكتمل</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (exam.Status == ExamStatus.Completed)
+                                        {
+                                            @exam.Grade<text>/100</text>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (exam.Status == ExamStatus.Available)
+                                        {
+                                            <button class="btn btn-sm btn-primary">بدء الاختبار</button>
+                                        }
+                                        else if (exam.Status == ExamStatus.Upcoming)
+                                        {
+                                            <button class="btn btn-sm btn-secondary" disabled>غير متاح</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-info">عرض النتائج</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedFilter = "all";
+
+    private enum ExamStatus
+    {
+        Upcoming,
+        Available,
+        Completed
+    }
+
+    private class Exam
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string SubjectName { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+        public int Duration { get; set; } // in minutes
+        public ExamStatus Status { get; set; }
+        public int? Grade { get; set; }
+    }
+
+    private List<Exam> GetAllExams()
+    {
+        // In a real app, this would come from a database or service
+        return new List<Exam>
+        {
+            new Exam 
+            { 
+                Id = 1, 
+                Title = "اختبار منتصف الفصل", 
+                SubjectName = "اللغة الإنجليزية",
+                Date = DateTime.Now.AddDays(5),
+                Duration = 60,
+                Status = ExamStatus.Upcoming
+            },
+            new Exam 
+            { 
+                Id = 2, 
+                Title = "اختبار الفصل الثالث", 
+                SubjectName = "الرياضيات",
+                Date = DateTime.Now.AddDays(1),
+                Duration = 90,
+                Status = ExamStatus.Available
+            },
+            new Exam 
+            { 
+                Id = 3, 
+                Title = "اختبار نهاية الفصل", 
+                SubjectName = "العلوم",
+                Date = DateTime.Now.AddDays(10),
+                Duration = 120,
+                Status = ExamStatus.Upcoming
+            },
+            new Exam 
+            { 
+                Id = 4, 
+                Title = "اختبار الوحدة الأولى", 
+                SubjectName = "التاريخ",
+                Date = DateTime.Now.AddDays(-15),
+                Duration = 45,
+                Status = ExamStatus.Completed,
+                Grade = 78
+            },
+            new Exam 
+            { 
+                Id = 5, 
+                Title = "اختبار الوحدة الثانية", 
+                SubjectName = "الجغرافيا",
+                Date = DateTime.Now.AddDays(-7),
+                Duration = 60,
+                Status = ExamStatus.Completed,
+                Grade = 92
+            },
+            new Exam 
+            { 
+                Id = 6, 
+                Title = "اختبار عملي", 
+                SubjectName = "علوم الحاسب",
+                Date = DateTime.Now.AddDays(0),
+                Duration = 120,
+                Status = ExamStatus.Available
+            }
+        };
+    }
+
+    private List<Exam> GetFilteredExams()
+    {
+        var exams = GetAllExams();
+        
+        return selectedFilter switch
+        {
+            "upcoming" => exams.Where(e => e.Status == ExamStatus.Upcoming || e.Status == ExamStatus.Available).ToList(),
+            "completed" => exams.Where(e => e.Status == ExamStatus.Completed).ToList(),
+            _ => exams
+        };
+    }
+}

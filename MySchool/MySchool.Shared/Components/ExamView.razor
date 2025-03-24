@@ -1,0 +1,550 @@
+@using MySchool.Shared.Models
+@implements IDisposable
+
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <h2 class="mb-0">الامتحان الشامل</h2>
+    </div>
+    <div class="card-body">
+        @if (!examStarted)
+        {
+            <div class="exam-intro text-center">
+                <h3>امتحان شامل</h3>
+                <p class="lead">هذا الامتحان يغطي جميع المواد التي درستها في هذا المقرر.</p>
+                
+                <div class="exam-details my-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-question-circle fs-1 text-primary mb-2"></i>
+                                    <h4>@questions.Count أسئلة</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-clock fs-1 text-primary mb-2"></i>
+                                    <h4>@(examDuration / 60) دقيقة</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-award fs-1 text-primary mb-2"></i>
+                                    <h4>@totalPoints درجة</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="exam-instructions mt-4">
+                    <h4>تعليمات الامتحان:</h4>
+                    <ul class="list-group text-start mb-4">
+                        <li class="list-group-item">اقرأ كل سؤال بعناية قبل الإجابة.</li>
+                        <li class="list-group-item">يمكنك التنقل بين الأسئلة باستخدام أزرار التنقل أو قائمة الأسئلة.</li>
+                        <li class="list-group-item">يمكنك مراجعة إجاباتك قبل تسليم الامتحان.</li>
+                        <li class="list-group-item">بمجرد انتهاء الوقت، سيتم تسليم الامتحان تلقائيًا.</li>
+                        <li class="list-group-item">لا يمكنك العودة للامتحان بعد تسليمه.</li>
+                    </ul>
+                </div>
+                
+                <button class="btn btn-danger btn-lg" @onclick="StartExam">
+                    <i class="bi bi-play-fill"></i> بدء الامتحان
+                </button>
+            </div>
+        }
+        else if (!examCompleted)
+        {
+            <div class="exam-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4>السؤال @(currentQuestionIndex + 1) من @questions.Count</h4>
+                </div>
+                <div class="exam-timer">
+                    <span class="badge bg-danger p-2">
+                        <i class="bi bi-clock"></i> الوقت المتبقي: @FormatTimeRemaining()
+                    </span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="question-navigator sticky-top pt-3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">الأسئلة</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2">
+                                    @for (int i = 0; i < questions.Count; i++)
+                                    {
+                                        int questionIndex = i;
+                                        bool isAnswered = selectedAnswers.ContainsKey(questions[i].Id);
+                                        bool isCurrent = i == currentQuestionIndex;
+                                        
+                                        <button class="btn @(isCurrent ? "btn-primary" : isAnswered ? "btn-success" : "btn-outline-secondary") question-nav-btn"
+                                                @onclick="() => NavigateToQuestion(questionIndex)">
+                                            @(i + 1)
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-danger w-100" @onclick="SubmitExam">
+                                <i class="bi bi-check2-circle"></i> تسليم الامتحان
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-9">
+                    <div class="question-container">
+                        @if (currentQuestionIndex < questions.Count)
+                        {
+                            var question = questions[currentQuestionIndex];
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">@question.Text</h4>
+                                    <p class="text-muted">(@question.Points نقطة)</p>
+                                    
+                                    <div class="options-container mt-3">
+                                        @foreach (var answer in question.Answers)
+                                        {
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="question_@question.Id" 
+                                                       id="answer_@answer.Id" value="@answer.Id"
+                                                       checked="@(selectedAnswers.ContainsKey(question.Id) && selectedAnswers[question.Id] == answer.Id)"
+                                                       @onchange="() => SelectAnswer(question.Id, answer.Id)" />
+                                                <label class="form-check-label" for="answer_@answer.Id">
+                                                    @answer.Text
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between">
+                                        <button class="btn btn-outline-secondary" @onclick="PreviousQuestion" disabled="@(currentQuestionIndex == 0)">
+                                            <i class="bi bi-arrow-left"></i> السابق
+                                        </button>
+                                        
+                                        <button class="btn btn-primary" @onclick="NextQuestion" disabled="@(currentQuestionIndex == questions.Count - 1)">
+                                            التالي <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="exam-results">
+                <div class="text-center mb-4">
+                    <h3>نتائج الامتحان</h3>
+                    <div class="display-4 my-3">@score / @totalPoints</div>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div class="progress-bar @GetScoreColorClass()" role="progressbar" 
+                             style="width: @(score * 100 / totalPoints)%" 
+                             aria-valuenow="@(score * 100 / totalPoints)" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            @(Math.Round((double)score * 100 / totalPoints, 1))%
+                        </div>
+                    </div>
+                    <p class="lead">@GetScoreMessage()</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">مراجعة الإجابات</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="examReviewAccordion">
+                            @foreach (var question in questions)
+                            {
+                                bool isCorrect = selectedAnswers.ContainsKey(question.Id) && 
+                                                question.Answers.First(a => a.Id == selectedAnswers[question.Id]).IsCorrect;
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed @(isCorrect ? "text-success" : "text-danger")" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#question_review_@question.Id" 
+                                                aria-expanded="false" aria-controls="question_review_@question.Id">
+                                            @if (isCorrect)
+                                            {
+                                                <i class="bi bi-check-circle-fill me-2"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-x-circle-fill me-2"></i>
+                                            }
+                                            @question.Text (@question.Points نقطة)
+                                        </button>
+                                    </h2>
+                                    <div id="question_review_@question.Id" class="accordion-collapse collapse" 
+                                         data-bs-parent="#examReviewAccordion">
+                                        <div class="accordion-body">
+                                            <div class="mb-3">
+                                                @if (selectedAnswers.ContainsKey(question.Id))
+                                                {
+                                                    var selectedAnswer = question.Answers.First(a => a.Id == selectedAnswers[question.Id]);
+                                                    <p>إجابتك: <strong>@selectedAnswer.Text</strong></p>
+                                                    
+                                                    if (!isCorrect)
+                                                    {
+                                                        var correctAnswer = question.Answers.First(a => a.IsCorrect);
+                                                        <p class="text-success">الإجابة الصحيحة: <strong>@correctAnswer.Text</strong></p>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">لم تجب على هذا السؤال</p>
+                                                    var correctAnswer = question.Answers.First(a => a.IsCorrect);
+                                                    <p class="text-success">الإجابة الصحيحة: <strong>@correctAnswer.Text</strong></p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary" @onclick="RestartExam">
+                        <i class="bi bi-arrow-repeat"></i> إعادة الامتحان
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .question-nav-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .sticky-top {
+        top: 20px;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    private List<Question> questions = new List<Question>();
+    private Dictionary<int, int> selectedAnswers = new Dictionary<int, int>();
+    private int currentQuestionIndex = 0;
+    private bool examStarted = false;
+    private bool examCompleted = false;
+    private int score = 0;
+    private int totalPoints = 0;
+    private int examDuration = 1800; // 30 minutes in seconds
+    private int timeRemaining;
+    private System.Threading.Timer? timer;
+
+    protected override void OnInitialized()
+    {
+        // In a real app, this would fetch data from a service based on ModuleId
+        LoadQuestions();
+        CalculateTotalPoints();
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Reset the exam when the ModuleId changes
+        if (ModuleId > 0 && examCompleted)
+        {
+            RestartExam();
+        }
+    }
+
+    private void LoadQuestions()
+    {
+        // Sample data - in a real app, this would come from a database
+        questions = new List<Question>
+        {
+            new Question 
+            { 
+                Id = 1, 
+                Text = "ما هي الصيغة الكيميائية للماء؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 1, Text = "CO2", IsCorrect = false },
+                    new Answer { Id = 2, Text = "H2O", IsCorrect = true },
+                    new Answer { Id = 3, Text = "O2", IsCorrect = false },
+                    new Answer { Id = 4, Text = "N2", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 2, 
+                Text = "من هو مؤلف رواية 'البؤساء'؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 5, Text = "تشارلز ديكنز", IsCorrect = false },
+                    new Answer { Id = 6, Text = "ليو تولستوي", IsCorrect = false },
+                    new Answer { Id = 7, Text = "فيكتور هوغو", IsCorrect = true },
+                    new Answer { Id = 8, Text = "دوستويفسكي", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 3, 
+                Text = "ما هي أكبر دولة في العالم من حيث المساحة؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 9, Text = "الصين", IsCorrect = false },
+                    new Answer { Id = 10, Text = "كندا", IsCorrect = false },
+                    new Answer { Id = 11, Text = "الولايات المتحدة", IsCorrect = false },
+                    new Answer { Id = 12, Text = "روسيا", IsCorrect = true }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 4, 
+                Text = "ما هو الكوكب الأقرب إلى الشمس؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 13, Text = "عطارد", IsCorrect = true },
+                    new Answer { Id = 14, Text = "الزهرة", IsCorrect = false },
+                    new Answer { Id = 15, Text = "الأرض", IsCorrect = false },
+                    new Answer { Id = 16, Text = "المريخ", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 5, 
+                Text = "ما هو العنصر الكيميائي الذي رمزه 'Au'؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 17, Text = "الفضة", IsCorrect = false },
+                    new Answer { Id = 18, Text = "الذهب", IsCorrect = true },
+                    new Answer { Id = 19, Text = "النحاس", IsCorrect = false },
+                    new Answer { Id = 20, Text = "الألومنيوم", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 6, 
+                Text = "ما هي عاصمة اليابان؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 21, Text = "سيول", IsCorrect = false },
+                    new Answer { Id = 22, Text = "بكين", IsCorrect = false },
+                    new Answer { Id = 23, Text = "طوكيو", IsCorrect = true },
+                    new Answer { Id = 24, Text = "بانكوك", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 7, 
+                Text = "من هو مخترع المصباح الكهربائي؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 25, Text = "نيكولا تسلا", IsCorrect = false },
+                    new Answer { Id = 26, Text = "توماس إديسون", IsCorrect = true },
+                    new Answer { Id = 27, Text = "ألبرت أينشتاين", IsCorrect = false },
+                    new Answer { Id = 28, Text = "غراهام بيل", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 8, 
+                Text = "ما هو أطول نهر في العالم؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 29, Text = "نهر الأمازون", IsCorrect = false },
+                    new Answer { Id = 30, Text = "نهر المسيسيبي", IsCorrect = false },
+                    new Answer { Id = 31, Text = "نهر النيل", IsCorrect = true },
+                    new Answer { Id = 32, Text = "نهر اليانغتسي", IsCorrect = false }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 9, 
+                Text = "ما هي أكبر محيط في العالم؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 33, Text = "المحيط الأطلسي", IsCorrect = false },
+                    new Answer { Id = 34, Text = "المحيط الهندي", IsCorrect = false },
+                    new Answer { Id = 35, Text = "المحيط المتجمد الشمالي", IsCorrect = false },
+                    new Answer { Id = 36, Text = "المحيط الهادئ", IsCorrect = true }
+                },
+                Points = 2
+            },
+            new Question 
+            { 
+                Id = 10, 
+                Text = "ما هي أعلى قمة جبل في العالم؟", 
+                Answers = new List<Answer> 
+                { 
+                    new Answer { Id = 37, Text = "جبل كليمنجارو", IsCorrect = false },
+                    new Answer { Id = 38, Text = "جبل إيفرست", IsCorrect = true },
+                    new Answer { Id = 39, Text = "جبل ماكينلي", IsCorrect = false },
+                    new Answer { Id = 40, Text = "جبل البروس", IsCorrect = false }
+                },
+                Points = 2
+            }
+        };
+    }
+
+    private void CalculateTotalPoints()
+    {
+        totalPoints = questions.Sum(q => q.Points);
+    }
+
+    private void StartExam()
+    {
+        examStarted = true;
+        timeRemaining = examDuration;
+        StartTimer();
+    }
+
+    private void StartTimer()
+    {
+        // Start a timer that ticks every second
+        timer = new System.Threading.Timer(async _ =>
+        {
+            if (timeRemaining > 0)
+            {
+                timeRemaining--;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                // Time's up, submit the exam
+                await InvokeAsync(SubmitExam);
+            }
+        }, null, 0, 1000);
+    }
+
+    private string FormatTimeRemaining()
+    {
+        int minutes = timeRemaining / 60;
+        int seconds = timeRemaining % 60;
+        return $"{minutes:00}:{seconds:00}";
+    }
+
+    private void SelectAnswer(int questionId, int answerId)
+    {
+        selectedAnswers[questionId] = answerId;
+    }
+
+    private void NavigateToQuestion(int index)
+    {
+        if (index >= 0 && index < questions.Count)
+        {
+            currentQuestionIndex = index;
+        }
+    }
+
+    private void PreviousQuestion()
+    {
+        if (currentQuestionIndex > 0)
+        {
+            currentQuestionIndex--;
+        }
+    }
+
+    private void NextQuestion()
+    {
+        if (currentQuestionIndex < questions.Count - 1)
+        {
+            currentQuestionIndex++;
+        }
+    }
+
+    private void SubmitExam()
+    {
+        // Stop the timer
+        timer?.Change(Timeout.Infinite, Timeout.Infinite);
+        
+        // Calculate the score
+        score = 0;
+        foreach (var question in questions)
+        {
+            if (selectedAnswers.ContainsKey(question.Id))
+            {
+                var selectedAnswerId = selectedAnswers[question.Id];
+                var selectedAnswer = question.Answers.FirstOrDefault(a => a.Id == selectedAnswerId);
+                
+                if (selectedAnswer != null && selectedAnswer.IsCorrect)
+                {
+                    score += question.Points;
+                }
+            }
+        }
+        
+        examCompleted = true;
+    }
+
+    private void RestartExam()
+    {
+        // Reset exam state
+        currentQuestionIndex = 0;
+        selectedAnswers.Clear();
+        examStarted = false;
+        examCompleted = false;
+        score = 0;
+    }
+
+    private string GetScoreColorClass()
+    {
+        double percentage = (double)score / totalPoints;
+        
+        if (percentage >= 0.8)
+            return "bg-success";
+        else if (percentage >= 0.6)
+            return "bg-info";
+        else if (percentage >= 0.4)
+            return "bg-warning";
+        else
+            return "bg-danger";
+    }
+
+    private string GetScoreMessage()
+    {
+        double percentage = (double)score / totalPoints;
+        
+        if (percentage >= 0.9)
+            return "ممتاز! أداء استثنائي!";
+        else if (percentage >= 0.8)
+            return "جيد جدًا! أداء رائع!";
+        else if (percentage >= 0.7)
+            return "جيد! أداء جيد.";
+        else if (percentage >= 0.6)
+            return "مقبول. يمكنك تحسين أدائك.";
+        else
+            return "تحتاج إلى مزيد من الدراسة. لا تستسلم!";
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

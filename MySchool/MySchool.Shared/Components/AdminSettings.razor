@@ -1,0 +1,130 @@
+@using MySchool.Shared.Models
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">إعدادات النظام</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="schoolName" class="form-label">اسم المدرسة</label>
+                        <input type="text" class="form-control" id="schoolName" value="مدرستي الإلكترونية">
+                    </div>
+                    <div class="mb-3">
+                        <label for="schoolLogo" class="form-label">شعار المدرسة</label>
+                        <input type="file" class="form-control" id="schoolLogo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="academicYear" class="form-label">العام الدراسي</label>
+                        <input type="text" class="form-control" id="academicYear" value="2024-2025">
+                    </div>
+                    <div class="mb-3">
+                        <label for="currentSemester" class="form-label">الفصل الدراسي الحالي</label>
+                        <select class="form-select" id="currentSemester">
+                            <option value="1" selected>الفصل الأول</option>
+                            <option value="2">الفصل الثاني</option>
+                            <option value="3">الفصل الصيفي</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">إعدادات الأمان</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="passwordPolicy" class="form-label">سياسة كلمة المرور</label>
+                        <select class="form-select" id="passwordPolicy">
+                            <option value="low">ضعيف (6 أحرف على الأقل)</option>
+                            <option value="medium" selected>متوسط (8 أحرف، حرف كبير، رقم)</option>
+                            <option value="high">قوي (10 أحرف، أحرف كبيرة وصغيرة، أرقام، رموز)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sessionTimeout" class="form-label">مدة انتهاء الجلسة (بالدقائق)</label>
+                        <input type="number" class="form-control" id="sessionTimeout" value="30">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="twoFactorAuth" checked>
+                        <label class="form-check-label" for="twoFactorAuth">تفعيل المصادقة الثنائية للمسؤولين</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="loginAttempts" checked>
+                        <label class="form-check-label" for="loginAttempts">تقييد محاولات تسجيل الدخول (5 محاولات)</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">حفظ إعدادات الأمان</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">إعدادات الإشعارات</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">تفعيل إشعارات البريد الإلكتروني</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="smsNotifications">
+                        <label class="form-check-label" for="smsNotifications">تفعيل إشعارات الرسائل النصية</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="assignmentNotifications" checked>
+                        <label class="form-check-label" for="assignmentNotifications">إشعارات الواجبات الجديدة</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="examNotifications" checked>
+                        <label class="form-check-label" for="examNotifications">إشعارات الاختبارات القادمة</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="gradeNotifications" checked>
+                        <label class="form-check-label" for="gradeNotifications">إشعارات الدرجات الجديدة</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">حفظ إعدادات الإشعارات</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">النسخ الاحتياطي واستعادة البيانات</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6>النسخ الاحتياطي</h6>
+                    <p>آخر نسخة احتياطية: 2025-03-22 10:15 AM</p>
+                    <button class="btn btn-primary">إنشاء نسخة احتياطية جديدة</button>
+                </div>
+                <hr>
+                <div class="mb-4">
+                    <h6>استعادة البيانات</h6>
+                    <div class="mb-3">
+                        <label for="backupFile" class="form-label">اختر ملف النسخة الاحتياطية</label>
+                        <input type="file" class="form-control" id="backupFile">
+                    </div>
+                    <button class="btn btn-warning">استعادة البيانات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Component logic can be added here if needed
+}
